@@ -1,5 +1,9 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Field, FieldError, FieldLabel } from "./ui/field";
 import {
   Dialog,
   DialogContent,
@@ -10,19 +14,55 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 
-export function CreateNoteDialog() {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+interface FormValues {
+  title: string;
+  content: string;
+}
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // TODO: submit note
-    console.log({ title, content });
+export function CreateNoteDialog() {
+  const [open, setOpen] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setError,
+  } = useForm<FormValues>();
+
+  async function onSubmit(data: FormValues) {
+    try {
+      const res = await fetch("http://localhost:3000/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        setError("root", {
+          message: "Failed to create note. Please try again.",
+        });
+        return;
+      }
+    } catch {
+      setError("root", {
+        message: "Network error. Please check your connection and try again.",
+      });
+      return;
+    }
+
+    reset();
+    setOpen(false);
+  }
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) reset();
+    setOpen(nextOpen);
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={<Button />}>Create Note</DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Note</DialogTitle>
@@ -30,36 +70,38 @@ export function CreateNoteDialog() {
             Add a new note to your collection.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="note-title" className="text-sm font-medium">
-              Title
-            </label>
-            <input
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <Field data-invalid={!!errors.title}>
+            <FieldLabel htmlFor="note-title">Title</FieldLabel>
+            <Input
               id="note-title"
               type="text"
               placeholder="Note title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-invalid={!!errors.title}
+              {...register("title", { required: "Title is required" })}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="note-content" className="text-sm font-medium">
-              Content
-            </label>
-            <textarea
+            <FieldError errors={[errors.title]} />
+          </Field>
+
+          <Field data-invalid={!!errors.content}>
+            <FieldLabel htmlFor="note-content">Content</FieldLabel>
+            <Textarea
               id="note-content"
               placeholder="Write your note…"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
               rows={4}
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              aria-invalid={!!errors.content}
+              {...register("content", { required: "Content is required" })}
             />
-          </div>
+            <FieldError errors={[errors.content]} />
+          </Field>
+
+          <FieldError errors={[errors.root]} />
+
           <DialogFooter showCloseButton>
-            <Button type="submit">Create Note</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Creating…" : "Create Note"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
