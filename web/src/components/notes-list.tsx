@@ -9,6 +9,8 @@ import {
   EmptyMedia,
 } from "./ui/empty";
 import { CreateNoteDialog } from "./create-note-dialog";
+import { Skeleton } from "./ui/skeleton";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 export interface Note {
   id: string;
@@ -20,7 +22,9 @@ export interface Note {
 }
 
 export function NotesList() {
-  const { data: notes = [] } = useQuery<Note[]>({
+  const [animationParent] = useAutoAnimate();
+
+  const { data: notes = [], isLoading } = useQuery<Note[]>({
     queryKey: ["notes"],
     queryFn: () =>
       fetch(`${import.meta.env.VITE_API_BASE_URL}/notes`).then((res) => {
@@ -28,6 +32,18 @@ export function NotesList() {
         return res.json() as Promise<Note[]>;
       }),
   });
+
+  if (isLoading) {
+    return (
+      <ul className="flex flex-col gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <li key={i}>
+            <NoteCardSkeleton />
+          </li>
+        ))}
+      </ul>
+    );
+  }
 
   if (notes.length === 0) {
     return (
@@ -49,7 +65,7 @@ export function NotesList() {
   }
 
   return (
-    <ul className="flex flex-col gap-4">
+    <ul ref={animationParent} className="flex flex-col gap-4">
       {notes.map((note) => (
         <li key={note.id}>
           <NoteCard note={note} />
@@ -81,6 +97,19 @@ function NoteCard({ note }: { note: Note }) {
         >
           {formattedDate}
         </time>
+      </div>
+    </div>
+  );
+}
+
+function NoteCardSkeleton() {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-xs">
+      <Skeleton className="h-4 w-2/5" />
+      <Skeleton className="h-3 w-full" />
+      <Skeleton className="h-3 w-4/5" />
+      <div className="flex justify-end">
+        <Skeleton className="h-3 w-24" />
       </div>
     </div>
   );
