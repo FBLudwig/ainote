@@ -8,4 +8,11 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.recommended,
   tseslint.configs.stylistic,
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
 );
