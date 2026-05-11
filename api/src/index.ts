@@ -13,16 +13,16 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
-    res.json({
-        message: "Hello from Express + TypeScript!"
-    });
+  res.json({
+    message: "Hello from Express + TypeScript!",
+  });
 });
 
 app.get("/health", async (req: Request, res: Response) => {
-    await db.execute(sql`SELECT 1`);
-    res.json({ status: "ok" });
+  await db.execute(sql`SELECT 1`);
+  res.json({ status: "ok" });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });

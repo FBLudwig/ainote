@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Button } from './ui/button'
+import { useState } from "react";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,16 +8,16 @@ import {
   DialogDescription,
   DialogTrigger,
   DialogFooter,
-} from './ui/dialog'
+} from "./ui/dialog";
 
 export function CreateNoteDialog() {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
   function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
     // TODO: submit note
-    console.log({ title, content })
+    console.log({ title, content });
   }
 
   return (
@@ -26,12 +26,14 @@ export function CreateNoteDialog() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Note</DialogTitle>
-          <DialogDescription>Add a new note to your collection.</DialogDescription>
+          <DialogDescription>
+            Add a new note to your collection.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="note-title" className="text-sm font-medium">
-                            Title
+              Title
             </label>
             <input
               id="note-title"
@@ -45,7 +47,7 @@ export function CreateNoteDialog() {
           </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="note-content" className="text-sm font-medium">
-                            Content
+              Content
             </label>
             <textarea
               id="note-content"
@@ -62,5 +64,5 @@ export function CreateNoteDialog() {
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

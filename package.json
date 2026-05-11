@@ -1,17 +1,17 @@
 {
-    "name": "ainote",
-    "private": true,
-    "version": "0.0.0",
-    "workspaces": [
-        "api",
-        "web"
-    ],
-    "devDependencies": {
-        "@eslint/js": "^10.0.1",
-        "eslint": "^10.3.0",
-        "eslint-config-prettier": "^10.1.5",
-        "globals": "^17.6.0",
-        "prettier": "^3.5.3",
-        "typescript-eslint": "^8.59.2"
-    }
+  "name": "ainote",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.5",
+    "globals": "^17.6.0",
+    "prettier": "^3.5.3",
+    "typescript-eslint": "^8.59.2"
+  }
 }
