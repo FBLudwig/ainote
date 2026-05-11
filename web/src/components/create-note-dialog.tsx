@@ -32,7 +32,7 @@ export function CreateNoteDialog() {
 
   const mutation = useMutation({
     mutationFn: (data: FormValues) =>
-      fetch("http://localhost:3000/notes", {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

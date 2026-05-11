@@ -23,7 +23,7 @@ export function NotesList() {
   const { data: notes = [] } = useQuery<Note[]>({
     queryKey: ["notes"],
     queryFn: () =>
-      fetch("http://localhost:3000/notes").then((res) => {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/notes`).then((res) => {
         if (!res.ok) throw new Error();
         return res.json() as Promise<Note[]>;
       }),
