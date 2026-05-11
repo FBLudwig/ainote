@@ -1,5 +1,5 @@
+import "dotenv/config";
 import express, { Request, Response } from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import { eq, desc } from "drizzle-orm";
 import { db } from "./db/index.js";
