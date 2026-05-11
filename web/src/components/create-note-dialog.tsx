@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -9,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
   DialogFooter,
 } from "./ui/dialog";
@@ -21,37 +21,39 @@ interface FormValues {
 
 export function CreateNoteDialog() {
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     setError,
   } = useForm<FormValues>();
 
-  async function onSubmit(data: FormValues) {
-    try {
-      const res = await fetch("http://localhost:3000/notes", {
+  const mutation = useMutation({
+    mutationFn: (data: FormValues) =>
+      fetch("http://localhost:3000/notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        setError("root", {
-          message: "Failed to create note. Please try again.",
-        });
-        return;
-      }
-    } catch {
+      }).then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] }); // Refresh the notes list
+      reset();
+      setOpen(false);
+    },
+    onError: () => {
       setError("root", {
-        message: "Network error. Please check your connection and try again.",
+        message: "Failed to create note. Please try again.",
       });
-      return;
-    }
+    },
+  });
 
-    reset();
-    setOpen(false);
+  function onSubmit(data: FormValues) {
+    mutation.mutate(data);
   }
 
   function handleOpenChange(nextOpen: boolean) {
@@ -61,14 +63,11 @@ export function CreateNoteDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger render={<Button />}>Create Note</DialogTrigger>
+      <DialogTrigger render={<Button />}>New Note</DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Note</DialogTitle>
-          <DialogDescription>
-            Add a new note to your collection.
-          </DialogDescription>
+          <DialogTitle className="text-xl">New Note</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -98,9 +97,9 @@ export function CreateNoteDialog() {
 
           <FieldError errors={[errors.root]} />
 
-          <DialogFooter showCloseButton>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Creating…" : "Create Note"}
+          <DialogFooter>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Creating…" : "Create Note"}
             </Button>
           </DialogFooter>
         </form>
