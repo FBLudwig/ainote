@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { NotebookPen } from "lucide-react";
 import {
@@ -9,6 +10,7 @@ import {
   EmptyMedia,
 } from "./ui/empty";
 import { CreateNoteDialog } from "./create-note-dialog";
+import { EditNoteDialog } from "./edit-note-dialog";
 import { Skeleton } from "./ui/skeleton";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { Badge } from "./ui/badge";
@@ -24,6 +26,7 @@ export interface Note {
 
 export function NotesList() {
   const [animationParent] = useAutoAnimate();
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
 
   const { data: notes = [], isLoading } = useQuery<Note[]>({
     queryKey: ["notes"],
@@ -66,17 +69,28 @@ export function NotesList() {
   }
 
   return (
-    <ul ref={animationParent} className="flex flex-col gap-4 mb-8">
-      {notes.map((note) => (
-        <li key={note.id}>
-          <NoteCard note={note} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul ref={animationParent} className="flex flex-col gap-4 mb-8">
+        {notes.map((note) => (
+          <li key={note.id}>
+            <NoteCard note={note} onClick={() => setEditingNoteId(note.id)} />
+          </li>
+        ))}
+      </ul>
+      {editingNoteId && (
+        <EditNoteDialog
+          noteId={editingNoteId}
+          open
+          onOpenChange={(o) => {
+            if (!o) setEditingNoteId(null);
+          }}
+        />
+      )}
+    </>
   );
 }
 
-function NoteCard({ note }: { note: Note }) {
+function NoteCard({ note, onClick }: { note: Note; onClick: () => void }) {
   const formattedDate = new Intl.DateTimeFormat(undefined, {
     year: "numeric",
     month: "short",
@@ -86,7 +100,11 @@ function NoteCard({ note }: { note: Note }) {
   }).format(new Date(note.created_at));
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-xs">
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full text-left flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-xs hover:bg-accent/50 transition-colors cursor-pointer"
+    >
       <h2 className="font-semibold text-base leading-snug">{note.title}</h2>
       <p className="text-sm text-muted-foreground line-clamp-2">
         {note.summary || note.content}
@@ -110,7 +128,7 @@ function NoteCard({ note }: { note: Note }) {
           {formattedDate}
         </time>
       </div>
-    </div>
+    </button>
   );
 }
 
