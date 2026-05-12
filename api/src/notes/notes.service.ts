@@ -68,7 +68,9 @@ export class NotesService {
   async generateSummary(title: string, content: string): Promise<string> {
     const { text } = await generateText({
       model: this.model,
-      prompt: `Write a short, concise summary for a note titled "${title}":\n\n${content}\n\nThe summary should be 1-2 sentences long and capture the main points of the note while being much shorter.`,
+      system:
+        "Summarize notes in maximum 2-3 sentences. Output only the summary, no preamble.",
+      prompt: `Title: ${title}\n\n${content}`,
       providerOptions: {
         openai: {
           textVerbosity: "low",
@@ -82,7 +84,9 @@ export class NotesService {
   async generateTags(title: string, content: string): Promise<string> {
     const { text } = await generateText({
       model: this.model,
-      prompt: `Generate 3-5 relevant tags for a note titled "${title}":\n\n${content}\n\nRespond with only a comma-separated list of tags, no other text.`,
+      system:
+        "Generate 3-5 short, relevant tags for a note. Output only a comma-separated list, no other text.",
+      prompt: `Title: ${title}\n\n${content}`,
       providerOptions: {
         openai: {
           textVerbosity: "low",

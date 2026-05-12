@@ -6,7 +6,7 @@ This project uses npm workspaces.
 
 ## Setup Instructions
 
-### Prerequesites
+### Prerequisites
 
 Have Docker and Node installed.
 
@@ -75,7 +75,7 @@ If tags were also used for filtering or search, they should get their own databa
 ### Express Project Structure
 
 The goal is to strike a balance between simplicity and extensibility. I use a service and a data layer with repositories. By leveraging dependency injection, this allows me to easily inject a different AI model or switch out the notes repository for a mock implementation during testing.
-I did not implement proper controllers or a router to keeps things simple.
+I did not implement proper controllers or a router to keep things simple.
 
 ## What you would improve with more time
 
@@ -86,6 +86,7 @@ I did not implement proper controllers or a router to keeps things simple.
 - Unit/Integration/E2E Tests
 - Production setup
   - serve frontend bundle from Express backend or host on a CDN to reduce load on backend and for better performance and scalability
+  - make CORS origin configurable
   - setup CI/CD
 - Prompt caching: since the note title and content are usually the same for generating summary and tags, we might be able to generate both with a single prompt or use caching features of the AI model providers
 - Additional features: deleting, pinning and reordering notes, assigning colors, tag filtering, (AI) search, Markdown support

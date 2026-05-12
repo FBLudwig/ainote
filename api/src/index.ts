@@ -80,8 +80,12 @@ app.post("/generate-summary", async (req: Request, res: Response) => {
     return;
   }
 
-  const summary = await notesService.generateSummary(title, content);
-  res.json({ summary });
+  try {
+    const summary = await notesService.generateSummary(title, content);
+    res.json({ summary });
+  } catch {
+    res.status(503).json({ error: "AI provider is not reachable" });
+  }
 });
 
 // Generate tags for a note
@@ -93,8 +97,12 @@ app.post("/generate-tags", async (req: Request, res: Response) => {
     return;
   }
 
-  const tags = await notesService.generateTags(title, content);
-  res.json({ tags });
+  try {
+    const tags = await notesService.generateTags(title, content);
+    res.json({ tags });
+  } catch {
+    res.status(503).json({ error: "AI provider is not reachable" });
+  }
 });
 
 migrate(db, { migrationsFolder: "./drizzle" }).then(() => {

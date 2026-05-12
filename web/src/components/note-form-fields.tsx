@@ -64,6 +64,10 @@ export function NoteFormFields({
     },
   });
 
+  const aiError =
+    (summaryMutation.isError || tagsMutation.isError) &&
+    "AI provider is not reachable. Please try again later.";
+
   return (
     <>
       <Field data-invalid={!!errors.title}>
@@ -147,6 +151,8 @@ export function NoteFormFields({
         />
         <FieldError errors={[errors.tags]} />
       </Field>
+
+      {aiError && <p className="text-sm text-destructive">{aiError}</p>}
     </>
   );
 }
