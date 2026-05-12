@@ -11,6 +11,7 @@ import {
 import { CreateNoteDialog } from "./create-note-dialog";
 import { Skeleton } from "./ui/skeleton";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Badge } from "./ui/badge";
 
 export interface Note {
   id: string;
@@ -65,7 +66,7 @@ export function NotesList() {
   }
 
   return (
-    <ul ref={animationParent} className="flex flex-col gap-4">
+    <ul ref={animationParent} className="flex flex-col gap-4 mb-8">
       {notes.map((note) => (
         <li key={note.id}>
           <NoteCard note={note} />
@@ -90,10 +91,21 @@ function NoteCard({ note }: { note: Note }) {
       <p className="text-sm text-muted-foreground line-clamp-2">
         {note.summary || note.content}
       </p>
-      <div className="flex justify-end">
+
+      <div className="flex mt-2">
+        {note.tags && (
+          <div className="flex flex-wrap gap-1">
+            {note.tags.split(",").map((tag) => (
+              <Badge variant="secondary" key={tag}>
+                {tag.trim()}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         <time
           dateTime={note.created_at}
-          className="text-xs text-muted-foreground"
+          className="ml-auto text-xs text-muted-foreground"
         >
           {formattedDate}
         </time>
