@@ -2,7 +2,36 @@
 
 ## Project Structure
 
-This project uses npm workspaces.
+This project uses npm workspaces with two packages: `api` and `web`.
+
+```
+ainote/
+├── api/                        # Express backend
+│   └── src/
+│       ├── index.ts            # Entry point, route definitions
+│       ├── db/
+│       │   ├── index.ts        # Drizzle database client
+│       │   └── schema.ts       # Database schema
+│       ├── lib/
+│       │   └── ai.ts           # AI SDK client setup
+│       └── notes/
+│           ├── notes.repository.ts  # Data access layer
+│           └── notes.service.ts     # Business logic + AI integration
+├── web/                        # Vite + React frontend
+│   └── src/
+│       ├── App.tsx             # Root component, TanStack Query setup
+│       ├── main.tsx            # Entry point
+│       ├── components/
+│       │   ├── notes-list.tsx       # Displays all notes
+│       │   ├── create-note-dialog.tsx
+│       │   ├── edit-note-dialog.tsx
+│       │   ├── note-form-fields.tsx # Shared form fields (title, content, summary, tags)
+│       │   └── ui/             # Shadcn UI primitives
+│       └── lib/
+│           └── utils.ts
+├── docker-compose.yml          # Postgres service
+└── package.json                # Workspace root
+```
 
 ## Setup Instructions
 
