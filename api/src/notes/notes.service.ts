@@ -7,6 +7,19 @@ type NoteUpdate = Partial<
   Pick<typeof notesTable.$inferInsert, "title" | "content" | "summary" | "tags">
 >;
 
+function normalizeTags(tags?: string | null): string | undefined {
+  if (!tags) return undefined;
+
+  return [
+    ...new Set(
+      tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+    ),
+  ].join(", ");
+}
+
 export class NotesService {
   constructor(
     private repo: NotesRepository,
@@ -19,7 +32,10 @@ export class NotesService {
 
   async getNote(id: string) {
     const notes = await this.repo.findById(id);
-    if (notes.length === 0) return null;
+    if (notes.length === 0) {
+      return null;
+    }
+
     return notes[0];
   }
 
@@ -29,13 +45,23 @@ export class NotesService {
     summary?: string,
     tags?: string,
   ) {
-    const created = await this.repo.create({ title, content, summary, tags });
+    const created = await this.repo.create({
+      title,
+      content,
+      summary,
+      tags: normalizeTags(tags),
+    });
+
     return created[0];
   }
 
   async updateNote(id: string, data: NoteUpdate) {
-    const updated = await this.repo.update(id, data);
-    if (updated.length === 0) return null;
+    const note = { ...data, tags: normalizeTags(data.tags) };
+    const updated = await this.repo.update(id, note);
+    if (updated.length === 0) {
+      return null;
+    }
+
     return updated[0];
   }
 
@@ -64,6 +90,6 @@ export class NotesService {
       },
     });
 
-    return text;
+    return normalizeTags(text) ?? "";
   }
 }
