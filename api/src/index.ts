@@ -4,6 +4,7 @@ import cors from "cors";
 import { db } from "./db/index.js";
 import { NotesRepository } from "./notes/notes.repository.js";
 import { NotesService } from "./notes/notes.service.js";
+import { defaultModel } from "./lib/ai.js";
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,7 +19,7 @@ app.use(
   }),
 );
 
-const notesService = new NotesService(new NotesRepository(db));
+const notesService = new NotesService(new NotesRepository(db), defaultModel);
 
 // List all notes
 app.get("/notes", async (_req: Request, res: Response) => {
@@ -67,6 +68,32 @@ app.put("/notes/:id", async (req: Request, res: Response) => {
   }
 
   res.json(note);
+});
+
+// Generate a summary for a note
+app.post("/generate-summary", async (req: Request, res: Response) => {
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    res.status(400).json({ error: "title and content are required" });
+    return;
+  }
+
+  const summary = await notesService.generateSummary(title, content);
+  res.json({ summary });
+});
+
+// Generate tags for a note
+app.post("/generate-tags", async (req: Request, res: Response) => {
+  const { title, content } = req.body;
+
+  if (!title || !content) {
+    res.status(400).json({ error: "title and content are required" });
+    return;
+  }
+
+  const tags = await notesService.generateTags(title, content);
+  res.json({ tags });
 });
 
 app.listen(PORT, () => {

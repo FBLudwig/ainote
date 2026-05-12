@@ -87,8 +87,8 @@ function NoteCard({ note }: { note: Note }) {
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-xs">
       <h2 className="font-semibold text-base leading-snug">{note.title}</h2>
-      <p className="text-sm text-muted-foreground whitespace-pre-wrap flex-1">
-        {note.content}
+      <p className="text-sm text-muted-foreground line-clamp-2">
+        {note.summary || note.content}
       </p>
       <div className="flex justify-end">
         <time
