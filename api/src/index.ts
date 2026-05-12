@@ -1,9 +1,9 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { eq, desc } from "drizzle-orm";
 import { db } from "./db/index.js";
-import { notesTable } from "./db/schema.js";
+import { NotesRepository } from "./notes/notes.repository.js";
+import { NotesService } from "./notes/notes.service.js";
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,29 +18,23 @@ app.use(
   }),
 );
 
+const notesService = new NotesService(new NotesRepository(db));
+
 // List all notes
 app.get("/notes", async (_req: Request, res: Response) => {
-  const notes = await db
-    .select()
-    .from(notesTable)
-    .orderBy(desc(notesTable.created_at));
-
+  const notes = await notesService.listNotes();
   res.json(notes);
 });
 
 // Get a single note
 app.get("/notes/:id", async (req: Request, res: Response) => {
-  const notes = await db
-    .select()
-    .from(notesTable)
-    .where(eq(notesTable.id, req.params.id as string));
-
-  if (notes.length === 0) {
+  const note = await notesService.getNote(req.params.id as string);
+  if (!note) {
     res.status(404).json({ error: "Note not found" });
     return;
   }
 
-  res.json(notes[0]);
+  res.json(note);
 });
 
 // Create a note
@@ -52,40 +46,27 @@ app.post("/notes", async (req: Request, res: Response) => {
     return;
   }
 
-  const created = await db
-    .insert(notesTable)
-    .values({ title, content, summary, tags })
-    .returning();
-
-  res.status(201).json(created[0]);
+  const note = await notesService.createNote(title, content, summary, tags);
+  res.status(201).json(note);
 });
 
 // Update a note
 app.put("/notes/:id", async (req: Request, res: Response) => {
   const { title, content, summary, tags } = req.body;
-  const updates: Partial<typeof notesTable.$inferInsert> = {};
-  if (title !== undefined) updates.title = title;
-  if (content !== undefined) updates.content = content;
-  if (summary !== undefined) updates.summary = summary;
-  if (tags !== undefined) updates.tags = tags;
+  const data = { title, content, summary, tags };
 
-  if (Object.keys(updates).length === 0) {
+  if (Object.values(data).every((v) => v === undefined)) {
     res.status(400).json({ error: "No fields to update" });
     return;
   }
 
-  const updated = await db
-    .update(notesTable)
-    .set(updates)
-    .where(eq(notesTable.id, req.params.id as string))
-    .returning();
-
-  if (updated.length === 0) {
+  const note = await notesService.updateNote(req.params.id as string, data);
+  if (!note) {
     res.status(404).json({ error: "Note not found" });
     return;
   }
 
-  res.json(updated[0]);
+  res.json(note);
 });
 
 app.listen(PORT, () => {
