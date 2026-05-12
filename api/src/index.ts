@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { db } from "./db/index.js";
 import { NotesRepository } from "./notes/notes.repository.js";
 import { NotesService } from "./notes/notes.service.js";
@@ -96,6 +97,8 @@ app.post("/generate-tags", async (req: Request, res: Response) => {
   res.json({ tags });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+migrate(db, { migrationsFolder: "./drizzle" }).then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
 });
